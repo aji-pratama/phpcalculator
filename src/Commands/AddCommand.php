@@ -46,6 +46,7 @@ class AddCommand extends Command
         $result = $this->calculateAll($numbers);
 
         $this->comment(sprintf('%s = %s', $description, $result));
+        $this->recordHistory(ucwords($this->getCommandVerb()), $description, $result, sprintf('%s = %s', $description, $result));
     }
 
     protected function getInput(): array
@@ -91,5 +92,32 @@ class AddCommand extends Command
     protected function calculate($number1, $number2)
     {
         return $number1 + $number2;
+    }
+
+    /**
+     * @param string $command
+     * @param string $description
+     * @param string $result
+     * @param string $output
+     */
+    protected function recordHistory($command, $description, $result, $output)
+    {
+        $array = array(
+            'Command' => $command,
+            'Description' => $description,
+            'Result' => $result,
+            'Output' => $output,
+            'Time' => date('m-d-Y H:i:s'),
+        );
+        $file = './data.json';
+
+        if (!file_exists($file)) {
+            file_put_contents($file, null);
+        }
+
+        $fileData = json_decode(file_get_contents($file), true);
+        $fileData[] = json_decode(json_encode($array));
+        $dataAsJson = json_encode($fileData);
+        file_put_contents($file, $dataAsJson);
     }
 }
